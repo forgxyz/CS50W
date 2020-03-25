@@ -1,0 +1,8 @@
+__pycache__/
+flask_session/
+.env
+books.csv
+credentials.txt
+database_url.json
+db.py
+goodreads.json
