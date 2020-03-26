@@ -4,10 +4,24 @@
 
 {% block body %}
   <div class="container">
-    I should build a table of results... or something of the sort. For now, though, the results:<br>
-    <br>
-    {% for item in result %}
-      {{ item.title }}, {{ item.author }}, {{ item.year }}, {{ item.isbn }}<br>
-    {% endfor %}
+    <h2>Results: {{ num }}</h2>
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th scope="col">Title</th>
+          <th scope="col">Author</th>
+          <th scope="col">ISBN</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in result %}
+          <tr>
+            <td><a href={{ url_for('book_lookup', isbn='{{ item.isbn }}') }}" method="get">{{ item.title }}</a></td>
+            <td>{{ item.author }}</td>
+            <td>{{ item.isbn }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 {% endblock %}
