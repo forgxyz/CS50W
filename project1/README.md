@@ -1,12 +1,23 @@
 # CS50W: Web Programming with Python and JavaScript
 ## Project 1
-[Project Requirements](https://docs.cs50.net/web/2020/x/projects/1/project1.html)
+[Project Description and Parameters](https://docs.cs50.net/web/2020/x/projects/1/project1.html)
+
+
+### What's needed to run on your machine
+1. Set env variables
+
+  I've listed .env in .gitignore to hide my database so this won't run without configuring FLASK_APP and DATABASE_URL
+
+1. books.csv has to end up in that database
+
+1. The db's schema has to follow the explicit SQL. Python class-based db interaction doesn't come until proj2...
+
 
 ### Project Overview
-
+soon
 
 ### Tools Used
-
+soon
 
 
 
