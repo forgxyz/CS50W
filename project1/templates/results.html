@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+
+{% block title %}Search Results{% endblock %}
+
+{% block body %}
+  <div class="container">
+    I should build a table of results... or something of the sort. For now, though, the results:<br>
+    <br>
+    {% for item in result %}
+      {{ item.title }}, {{ item.author }}, {{ item.year }}, {{ item.isbn }}<br>
+    {% endfor %}
+  </div>
+{% endblock %}

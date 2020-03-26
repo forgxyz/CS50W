@@ -5,17 +5,19 @@
 {% block body %}
   <div class="container">
     {{ msg | safe }}
-    <h1>Welcome to bookguru {{ session.username }}!</h1>
+    <h1>Welcome to bookguru, {{ session.username }}!</h1>
     <h2>we are a made up website with no users and no internet access!</h2>
     <p align="right"><em>no seriously, please help us!</em></p>
     <p>hahaha... anyway. please register if you are new here, and if you are already a member. Welcome home.</p>
     <hr>
-    <form action="/search">
+
+    <form action="/search" method="post">
       <div class="form-group">
-        <label for="search">Search via ISBN, title or author.</label>
-        <input type="text" class="form-control" id="search" name="search">
+        <label for="q">Search via Title, Author or ISBN.</label>
+        <input type="text" class="form-control" id="q" name="q">
       </div>
-      <button type="submit" class="btn btn-primary">Search!</button>
+      <button type="submit" class="btn btn-primary">Search</button>
     </form>
+
   </div>
 {% endblock %}

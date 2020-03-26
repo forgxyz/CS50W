@@ -7,6 +7,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 
 from helpers import login_required
 
+
 app = Flask(__name__)
 
 # Check for environment variable
@@ -55,14 +56,14 @@ def login():
     if db.execute(f"SELECT * FROM {TABLE} WHERE username = :username", {"username" : username}).rowcount == 0:
         # if 0 rows returned, the username is not correct
         db.commit()
-        return render_template("login.html", msg = f"<div class='alert alert-danger' role='alert'><h3 class='alert-heading'>Username {username} not found!</h3> Please <a href='/register' class='alert-link'>register</a> or log in again.</div>")
+        return render_template("login.html", msg = f"<div class='alert alert-danger' role='alert'><h3 class='alert-heading'>Username {username} not found!</h3>Please <a href='/register' class='alert-link'>register</a> or log in again.</div>")
 
     # if it does, check the password
     password = request.form["password"]
     if password != db.execute(f"SELECT password FROM {TABLE} WHERE username = :username", {"username" :username}).first()[0]:
         # password does not match. close tx and send error
         db.commit()
-        return render_template("login.html", msg = f"<div class='alert alert-danger' role='alert'><h3 class='alert-heading'>Incorrect username or password.</h3> Please <a href='/register' class='alert-link'>register</a> or log in again.</div>")
+        return render_template("login.html", msg = f"<div class='alert alert-danger' role='alert'><h3 class='alert-heading'>Incorrect username or password.</h3>Please <a href='/register' class='alert-link'>register</a> or log in again.</div>")
     id = db.execute(f"SELECT id FROM {TABLE} WHERE username = :username", {"username": username}).first()[0]
     db.commit()
     # yay! if you made it here you are a registed user or successful hacker
@@ -90,7 +91,7 @@ def register():
     if db.execute(f"SELECT * FROM {TABLE} WHERE username = :username", {"username": username}).rowcount > 0:
         # the username already exists, try again
         db.commit()
-        return render_template("register.html", msg = f"<div class='alert alert-danger' role='alert'><h3 class='alert-heading'>{username} is already registered!</h3> Please try again.</div>")
+        return render_template("register.html", msg = f"<div class='alert alert-danger' role='alert'><h3 class='alert-heading'>{username} is already registered!</h3>Please try again.</div>")
 
     # username does not exist, add the un/pw to table & grab the id
     db.execute(f"INSERT INTO {TABLE} (username, password) VALUES (:username, :password);", {"username": username, "password": request.form["password"]})
@@ -101,3 +102,14 @@ def register():
     session["user_id"] = id
     session["username"] = username
     return redirect("/")
+
+
+@app.route("/search", methods=['GET', 'POST'])
+@login_required
+def search():
+    query = f"%{request.form.get('q')}%"
+    # this is weird. It didn't accept request.form['query'] due to a KeyError but request.form.get() is fine
+    res = db.execute(f"SELECT * FROM books WHERE isbn ILIKE :query OR title ILIKE :query OR author ILIKE :query", {"query": query}).fetchall()
+    if len(res) == 0:
+        return render_template("index.html", msg=f"<div class='alert alert-primary' role='alert'><h3 class='alert-heading'>Please try again</h3>No matches found.</div>")
+    return render_template("results.html", result=res)
