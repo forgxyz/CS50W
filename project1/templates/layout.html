@@ -4,6 +4,7 @@
     <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="static/bootstrap-sandstone.min.css">
     <link rel="stylesheet" href="static/styles.css">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
   </head>
   <body>
     <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
@@ -16,7 +17,7 @@
           <li class="nav-item">
             <a class="nav-link" href="/">Home</a>
           </li>
-          
+
           {% if session.user_id %}
           <li class="nav-item">
             <a class="nav-link" href="/logout">Log Out</a>
