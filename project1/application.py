@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, session, render_template, request, redirect
+from flask import Flask, url_for, redirect, render_template, request, session
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -82,7 +82,7 @@ def logout():
     return redirect("/")
 
 
-@app.route("/post_review")
+@app.route("/post_review", methods=['GET', 'POST'])
 @login_required
 def post_review():
     # collect user id
@@ -91,11 +91,14 @@ def post_review():
     isbn = request.form["isbn"]
     stars = request.form.get("stars")
     review = request.form.get("review")
+    # TODO:
+    # check to make sure the user has not reviewed this book before
+    # user_id=user_id AND isbn=isbn
+    # else - ok to post
     # add user id, isbn, stars, review to database
-    db.execute("INSERT INTO reviews (user_id, isbn, stars, review) VALUES (:user_id, :isbn, :stars, :review)", {"user_id": user_id, "isbn": isbn, "stars": stars, "review": review})
-    # # TODO:
-        # create the table and check if this works right
-    pass
+    db.execute("INSERT INTO reviews_test (user_id, isbn, stars, review) VALUES (:user_id, :isbn, :stars, :review);", {"user_id": user_id, "isbn": isbn, "stars": stars, "review": review})
+    db.commit() # DON'T FORGET ME
+    return render_template("index.html", msg="Success!")
 
 
 # register a new user
