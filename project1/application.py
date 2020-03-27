@@ -34,12 +34,6 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/book")
-@login_required
-def book():
-    return render_template("book.html", book=None)
-
-
 @app.route("/book/<string:isbn>", methods=['GET', 'POST'])
 @login_required
 def book_lookup(isbn):
@@ -50,7 +44,7 @@ def book_lookup(isbn):
     book = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchall()
     if len(book) == 0:
         return render_template("index.html", msg=f"<div class='alert alert-danger' role='alert'><h3 class='alert-heading'>Invalid ISBN.</h3>Please try again.</div>")
-    return render_template("book.html", book=book)
+    return render_template("book.html", book=book[0])
 
 
 @app.route("/login", methods=['GET', 'POST'])
@@ -86,6 +80,22 @@ def login():
 def logout():
     session.clear()
     return redirect("/")
+
+
+@app.route("/post_review")
+@login_required
+def post_review():
+    # collect user id
+    user_id = session.get("user_id")
+    # collect isbn
+    isbn = request.form["isbn"]
+    stars = request.form.get("stars")
+    review = request.form.get("review")
+    # add user id, isbn, stars, review to database
+    db.execute("INSERT INTO reviews (user_id, isbn, stars, review) VALUES (:user_id, :isbn, :stars, :review)", {"user_id": user_id, "isbn": isbn, "stars": stars, "review": review})
+    # # TODO:
+        # create the table and check if this works right
+    pass
 
 
 # register a new user

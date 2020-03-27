@@ -16,7 +16,7 @@
       <tbody>
         {% for item in result %}
           <tr>
-            <td><a href={{ url_for('book_lookup', isbn='{{ item.isbn }}') }}" method="get">{{ item.title }}</a></td>
+            <td><a href={{ url_for('book_lookup', isbn=item.isbn )}} method="get">{{ item.title }}</a></td>
             <td>{{ item.author }}</td>
             <td>{{ item.isbn }}</td>
           </tr>
