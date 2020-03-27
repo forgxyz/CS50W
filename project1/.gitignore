@@ -1,7 +1,0 @@
-__pycache__/
-flask_session/
-.env
-credentials.txt
-database_url.json
-db.py
-goodreads.json

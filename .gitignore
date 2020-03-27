@@ -2,3 +2,10 @@ lecture2
 project0
 src3
 src4
+project1/__pycache__/
+project1/flask_session/
+project1/.env
+project1/credentials.txt
+project1/database_url.json
+project1/db.py
+project1/goodreads.json
