@@ -1,5 +1,5 @@
 # CS50W
-CS50W Project Files
+My CS50W Project Files
 
 [Course Page](https://cs50.harvard.edu/web/)
 
