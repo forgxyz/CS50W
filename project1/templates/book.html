@@ -34,8 +34,9 @@
       <small class="form-text text-muted">Be aware that you cannot edit your reviews!</small>
     </form>
     <br>
+    {% if not reviews %}
+    {% else %}
     <h3>Bookguru user reviews</h3>
-
     <br>
     <table class="table table-striped">
       <thead>
@@ -56,4 +57,5 @@
       </tbody>
     </table>
   </div>
+  {% endif %}
 {% endblock %}
