@@ -1,4 +1,4 @@
-import os
+import json, os, requests
 
 from flask import Flask, url_for, redirect, render_template, request, session
 from flask_session import Session
@@ -14,8 +14,13 @@ app = Flask(__name__)
 if not os.getenv("DATABASE_URL"):
     raise RuntimeError("DATABASE_URL is not set")
 
-
+# global variables
 TABLE = 'test_users2'
+REV_TABLE = 'reviews_test'
+
+# store your goodreads API key as a json dictionary or delete this and hard code the key
+with open('goodreads.json') as f:
+    GR_KEY = json.load(f)['key']
 
 # Configure session to use filesystem
 app.config["SESSION_PERMANENT"] = False
@@ -44,7 +49,19 @@ def book_lookup(isbn):
     book = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchall()
     if len(book) == 0:
         return render_template("index.html", msg=f"<div class='alert alert-danger' role='alert'><h3 class='alert-heading'>Invalid ISBN.</h3>Please try again.</div>")
-    return render_template("book.html", book=book[0])
+    # check for reviews
+    reviews = db.execute(f"SELECT r.review, r.stars, r.user_id, u.username FROM {REV_TABLE} r JOIN {TABLE} u ON r.user_id=u.id WHERE isbn = :isbn", {"isbn": isbn}).fetchall()
+    if len(reviews) == 0:
+        reviews = None
+    summary = db.execute(f"SELECT ROUND(AVG(stars), 2) AS avg, COUNT(stars) AS count FROM {REV_TABLE} WHERE isbn = :isbn", {"isbn": isbn}).first()
+    db.commit() # do I need to commit when I am just SELECTing? is that also a transaction, or just when INSERTing? ... what harm does it do to have it
+    # pull goodreads statistics
+    res = requests.get(f"https://goodreads.com/book/review_counts.json", params={"key": GR_KEY, "isbns": isbn})
+    try:
+        goodreads = res.json()['books'][0]
+    except:
+        return render_template("index.html", msg="<div class='alert alert-error' role='alert'><h3 class='alert-heading'>API Error.</h3>Error connecting to the Goodreads API. Please report error.</div>")
+    return render_template("book.html", book=book[0], reviews=reviews, summary=summary, goodreads=goodreads)
 
 
 @app.route("/login", methods=['GET', 'POST'])
@@ -86,19 +103,22 @@ def logout():
 @login_required
 def post_review():
     # collect user id
-    user_id = session.get("user_id")
+    user_id = session.get("user_id")[0]
     # collect isbn
     isbn = request.form["isbn"]
     stars = request.form.get("stars")
     review = request.form.get("review")
     # TODO:
     # check to make sure the user has not reviewed this book before
+    if db.execute(f"SELECT * FROM {REV_TABLE} WHERE user_id = :user_id AND isbn = :isbn", {"user_id": user_id, "isbn": isbn}).rowcount > 0:
+        db.commit()
+        return render_template("index.html", msg="<div class='alert alert-danger' role='alert'><h3 class='alert-heading'>Unable to post review.</h3>You may only review a book once!</div>")
     # user_id=user_id AND isbn=isbn
     # else - ok to post
     # add user id, isbn, stars, review to database
-    db.execute("INSERT INTO reviews_test (user_id, isbn, stars, review) VALUES (:user_id, :isbn, :stars, :review);", {"user_id": user_id, "isbn": isbn, "stars": stars, "review": review})
+    db.execute(f"INSERT INTO {REV_TABLE} (user_id, isbn, stars, review) VALUES (:user_id, :isbn, :stars, :review);", {"user_id": user_id, "isbn": isbn, "stars": stars, "review": review})
     db.commit() # DON'T FORGET ME
-    return render_template("index.html", msg="Success!")
+    return render_template("index.html", msg="<div class='alert alert-success' role='alert'><h3 class='alert-heading'>Success!</h3>Thanks for your review.</div>")
 
 
 # register a new user
