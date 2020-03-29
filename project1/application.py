@@ -45,7 +45,7 @@ def book_lookup(isbn):
     """Load the book information page
         Title, author year from books table
         bookguru reviews from reviews table
-        goodreads reviews from API (TBD)"""
+        goodreads reviews from API"""
     book = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchall()
     if len(book) == 0:
         return render_template("index.html", msg=f"<div class='alert alert-danger' role='alert'><h3 class='alert-heading'>Invalid ISBN.</h3>Please try again.</div>")
