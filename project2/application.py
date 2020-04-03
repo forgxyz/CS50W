@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask
+from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
 
 from helpers import *
@@ -14,13 +14,15 @@ socketio = SocketIO(app)
 @app.route("/")
 @login_required
 def index():
-    return "Project 2: TODO"
+    name = session.get("username")
+    return render_template("index.html", name=name)
+
+
+@app.route("/home")
+def home():
+    return("THIS IS THE HOMEPAGE")
 
 
 @app.route("/login")
-def login:
-    """Display Name: When a user visits your web application for the first time, they should be prompted to type
-    in a display name that will eventually be associated with every message the user sends.
-    If a user closes the page and returns to your app later, the display name should still be remembered."""
-    # like login but no password, not formally creating an account
-    return "TODO"
+def login():
+    return render_template("index.html")
