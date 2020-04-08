@@ -7,4 +7,5 @@ project1/goodreads.json
 **/flask_session/
 **/.env
 **/__pycache__
+**/venv
 src?
