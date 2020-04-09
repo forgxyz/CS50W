@@ -1,15 +1,8 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
-
-    <!-- App and BootStrap JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.11/handlebars.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-    <script src="{{ url_for('static', filename='flack.js') }}"></script>
+  </head>
 
   <body>
     <!-- Navbar -->
@@ -38,22 +31,19 @@
       </div>
     </nav>
 
-    <div class="container"><h1>TODO...</h1></div>
-
-    <!-- temp form -->
-    <div class="container">
-      <form id="displayname_form">
-        <div class="form-group">
-          <label for="username">What should we call you?</label>
-          <input type="text" class="form-control" id="username" name="username" aria-describedby="Username">
-        </div>
-        <button type="button" class="btn btn-primary" id="displayname">Submit</button>
-      </form>
-    </div>
+    <div class="container" id="todo"><h1>TODO...</h1></div>
 
     <!-- Page body content -->
     <div class="container" id="body"></div>
 
 
+    <!-- Handlebars -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.11/handlebars.min.js"></script>
+    <!-- Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <!-- Local -->
+    <script src="{{ url_for('static', filename='flack.js') }}"></script>
   </body>
 </html>

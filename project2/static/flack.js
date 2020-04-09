@@ -1,7 +1,6 @@
-const display_form = Handlebars.compile(document.querySelector('#displayname_form').innerHTML);
+// const display_form = Handlebars.compile(document.querySelector('#displayname_form').innerHTML);
 
 document.addEventListener('DOMContentLoaded', () => {
-
     // Start by loading first page.
     load_page('home');
 
@@ -15,6 +14,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// store the display name to local storage
+function disp_name() {
+    if (localStorage.displayname !== undefined) {
+        alert('The display name is already set!');
+        return false;
+    }
+    let displayname = document.querySelector('#displayname').value;
+    localStorage.setItem('displayname', displayname);
+    if (localStorage.displayname === undefined) {
+        alert('ERROR: Unable to set display name.');
+    } else {
+        alert(`Hello, ${displayname}! Thanks for setting your display name.`);
+    }
+}
+
 
 // Update text on popping state.
 window.onpopstate = e => {
@@ -25,19 +39,15 @@ window.onpopstate = e => {
 
 // Renders contents of new page in main view.
 function load_page(name) {
-    if (name === 'set_name') {
-        document.querySelector('#body').innerHTML = display_form;
-    } else {
-      const request = new XMLHttpRequest();
-      request.open('GET', `/${name}`);
-      request.onload = () => {
+    const request = new XMLHttpRequest();
+    request.open('GET', `/${name}`);
+    request.onload = () => {
         const response = request.responseText;
         document.querySelector('#body').innerHTML = response;
 
         // Push state to URL.
         document.title = name;
-        history.pushState({'title': name, 'text': response}, name, name);
+        // history.pushState({'title': name, 'text': response}, name, name);
       };
-      request.send();
-    }
+    request.send();
 }

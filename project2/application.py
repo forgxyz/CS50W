@@ -22,14 +22,15 @@ def home():
 @app.route("/set_name", methods=['GET', 'POST'])
 def set_name():
     return f"""
-          <form id="displayname_form">
-            <div class="form-group">
-              <label for="username">What should we call you?</label>
-              <input type="text" class="form-control" id="username" name="username" aria-describedby="Username">
+            <div class="container">
+              <form onsubmit="disp_name(); return false;">
+                <div class="form-group">
+                  <label for="displayname">What should we call you?</label>
+                  <input type="text" class="form-control" id="displayname" aria-describedby="Display name">
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+              </form>
             </div>
-            <button type="button" class="btn btn-primary" id="displayname">Submit</button>
-          </form>
-          <div id="test"></div>
     """
 
 
