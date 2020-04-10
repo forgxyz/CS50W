@@ -1,5 +1,3 @@
-// const display_form = Handlebars.compile(document.querySelector('#displayname_form').innerHTML);
-
 document.addEventListener('DOMContentLoaded', () => {
     // Start by loading first page.
     load_page('home');
@@ -15,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // store the display name to local storage
-function disp_name() {
+function store_displayname() {
     if (localStorage.displayname !== undefined) {
         alert('The display name is already set!');
         return false;
@@ -27,6 +25,7 @@ function disp_name() {
     } else {
         alert(`Hello, ${displayname}! Thanks for setting your display name.`);
     }
+    load_page('home');
 }
 
 
@@ -39,15 +38,27 @@ window.onpopstate = e => {
 
 // Renders contents of new page in main view.
 function load_page(name) {
-    const request = new XMLHttpRequest();
-    request.open('GET', `/${name}`);
-    request.onload = () => {
-        const response = request.responseText;
-        document.querySelector('#body').innerHTML = response;
+    if (localStorage.displayname === undefined) {
+        // no user is stored
+        // compile locally instead of on flask server
+        const displaynametemplate = Handlebars.compile(document.querySelector('#displayname_form').innerHTML);
+        const content = displaynametemplate();
+        document.querySelector('#body').innerHTML = content;
+    } else if (name === 'logout') {
+        localStorage.clear();
+        load_page('home');
+      }
+    else {
+        const request = new XMLHttpRequest();
+        request.open('GET', `/${name}`);
+        request.onload = () => {
+            const response = request.responseText;
+            document.querySelector('#body').innerHTML = response;
 
-        // Push state to URL.
-        document.title = name;
-        // history.pushState({'title': name, 'text': response}, name, name);
-      };
-    request.send();
+            // Push state to URL.
+            document.title = name;
+            // history.pushState({'title': name, 'text': response}, name, name);
+          };
+        request.send();
+  }
 }

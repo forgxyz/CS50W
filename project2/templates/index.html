@@ -18,10 +18,10 @@
             <a href="" class="nav-link" data-page="home">Home</a>
           </li>
           <li class="nav-item">
-            <a href="" class="nav-link" data-page="set_name">Login</a>
+            <a href="" class="nav-link" data-page="create">Create a Channel</a>
           </li>
           <li class="nav-item">
-            <a href="" class="nav-link" data-page="test">Test</a>
+            <a href="" class="nav-link" data-page="logout">Log out</a>
           </li>
         </ul>
         <form class="form-inline my-2 my-lg-0">
@@ -45,5 +45,19 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
     <!-- Local -->
     <script src="{{ url_for('static', filename='flack.js') }}"></script>
+
+    <!-- Handlebars template for display name form -->
+    <script id="displayname_form" type="text/x-handlebars-template">
+      <div class="container">
+        <form onsubmit="store_displayname(); return false;">
+          <div class="form-group">
+            <label for="displayname">What should we call you?</label>
+            <input type="text" class="form-control" id="displayname" aria-describedby="Display name">
+          </div>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+      </div>
+    </script>
+
   </body>
 </html>
