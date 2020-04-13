@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // channel_list();
     // Start by loading first page.
     load_page('home');
 
@@ -6,14 +7,77 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.nav-link').forEach(link => {
         link.onclick = () => {
             const page = link.dataset.page;
+            if (page === undefined) {
+                return false;
+            } else {
             load_page(page);
             return false;
+          }
         };
     });
 });
 
+
+// Update text on popping state.
+window.onpopstate = e => {
+    const data = e.state;
+    document.title = data.title;
+    document.querySelector('#body').innerHTML = data.text;
+};
+
+
+// create a new channel or return an error from the server
+function create_channel () {
+    const request = new XMLHttpRequest();
+    request.open('POST', '/create');
+    request.onload = () => {
+        // if True: successful add, if False: channel name exists
+        const result = request.responseText;
+        alert(result);
+    }
+
+    // send form input
+    const data = new FormData();
+    data.append('name', document.querySelector('#channelname').value);
+    request.send(data);
+}
+
+
+// Renders contents of new page in main view.
+function load_page (name) {
+    if (localStorage.displayname === undefined) {
+        // no user is stored
+        // compile locally instead of on flask server
+        render_handlebars('displayname_form');
+    } else if (name === 'logout') {
+        localStorage.clear();
+        load_page('home');
+    } else if (name === 'create') {
+        render_handlebars('create_channel_form');
+    } else {
+        const request = new XMLHttpRequest();
+        request.open('GET', `/${name}`);
+        request.onload = () => {
+            const response = request.responseText;
+            document.querySelector('#body').innerHTML = response;
+            // Push state to URL.
+            document.title = name;
+            // history.pushState({'title': name, 'text': response}, name, name);
+          };
+        request.send();
+  }
+}
+
+
+function render_handlebars (id, params = false) {
+    const template = Handlebars.compile(document.querySelector(`#${id}`).innerHTML);
+    const content = template(params);
+    document.querySelector('#body').innerHTML = content;
+}
+
+
 // store the display name to local storage
-function store_displayname() {
+function store_displayname () {
     if (localStorage.displayname !== undefined) {
         alert('The display name is already set!');
         return false;
@@ -26,39 +90,4 @@ function store_displayname() {
         alert(`Hello, ${displayname}! Thanks for setting your display name.`);
     }
     load_page('home');
-}
-
-
-// Update text on popping state.
-window.onpopstate = e => {
-    const data = e.state;
-    document.title = data.title;
-    document.querySelector('#body').innerHTML = data.text;
-};
-
-// Renders contents of new page in main view.
-function load_page(name) {
-    if (localStorage.displayname === undefined) {
-        // no user is stored
-        // compile locally instead of on flask server
-        const displaynametemplate = Handlebars.compile(document.querySelector('#displayname_form').innerHTML);
-        const content = displaynametemplate();
-        document.querySelector('#body').innerHTML = content;
-    } else if (name === 'logout') {
-        localStorage.clear();
-        load_page('home');
-      }
-    else {
-        const request = new XMLHttpRequest();
-        request.open('GET', `/${name}`);
-        request.onload = () => {
-            const response = request.responseText;
-            document.querySelector('#body').innerHTML = response;
-
-            // Push state to URL.
-            document.title = name;
-            // history.pushState({'title': name, 'text': response}, name, name);
-          };
-        request.send();
-  }
 }

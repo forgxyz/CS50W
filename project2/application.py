@@ -1,44 +1,72 @@
 import os
 
 from datetime import datetime
-from flask import Flask, redirect, render_template, request, url_for
+from flask import Flask, jsonify, redirect, render_template, request, url_for
 from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY") # ???
 socketio = SocketIO(app)
 
+# CHANNELS will hold message data in the following structure:
+"""[{name:
+    {id,
+    mesages: [{
+        id,
+        content,
+        timestamp,
+        posted_by}]
+    }
+    }]"""
+
 CHANNELS = []
+# CHANNEL_LIST will be a "table of contents" that maps name: id
 CHANNEL_LIST = {}
 
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html", list = list(CHANNEL_LIST.keys()))
 
 
 @app.route("/create", methods=['GET', 'POST'])
-def create_channel(name = None):
+def create_channel():
     # id will be equal to the list index of the channel
     if request.method == 'POST':
+        name = request.form.get("name")
+        if name == None:
+            return "Error, name = None"
+        if name in CHANNEL_LIST.values():
+            # a channel by this name already exists
+            return "Error, name already in list"
         id = len(CHANNELS)
         CHANNELS.append({name: {"id": id, "messages": []}})
-        CHANNEL_LIST[id] = name
-        return True
-    return "Coming soon..."
+        CHANNEL_LIST[name] = id
+        return "Success"
+
+
+@app.route("/channel/<name>")
+def load_channel(name):
+    return f"Developing the channel {name}... please wait..."
+
+
+@app.route("/channel_list")
+def channel_list():
+    return jsonify(list(CHANNEL_LIST.keys()))
+
 
 @app.route("/home")
 def home():
     return "THIS IS THE HOMEPAGE"
 
 
-@app.route("/post")
+@app.route("/new_post")
 def post_message(channel, message, user):
     if channel not in CHANNEL_LIST.values():
         # expand on error
         return False
     id = len(CHANNELS[channel]['messages'])
-    CHANNELS[channel]['messages'].append({id: {"timestamp": datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S'), "content": message, "user": user}})
+    CHANNELS[channel]['messages'].append({id: {"timestamp": datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S'), "content": message, "posted_by": user}})
     return True
 
 
