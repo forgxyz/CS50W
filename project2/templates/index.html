@@ -2,6 +2,7 @@
 <html>
   <head>
     <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
   </head>
 
   <body>
@@ -15,13 +16,27 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item">
-            <a href="" class="nav-link" data-page="home">Home</a>
+            <a class="nav-link" href="" data-page="home">Home</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Channel List
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="nav-link dropdown-item" href="" data-page="create">Create a New Channel</a>
+              <div id="active_channel">
+                <!-- fill in active channel here, if any -->
+              </div>
+              <div class="dropdown-divider"></div>
+              <div id="channel_list">
+                {% for channel in list %}
+                  <a class="nav-link dropdown-item" href="" data-page="channel/{{ channel }}">{{ channel }}</a>
+                {% endfor %}
+              </div>
+            </div>
           </li>
           <li class="nav-item">
-            <a href="" class="nav-link" data-page="create">Create a Channel</a>
-          </li>
-          <li class="nav-item">
-            <a href="" class="nav-link" data-page="logout">Log out</a>
+            <a class="nav-link" href="" data-page="logout">Log out</a>
           </li>
         </ul>
         <form class="form-inline my-2 my-lg-0">
@@ -46,7 +61,8 @@
     <!-- Local -->
     <script src="{{ url_for('static', filename='flack.js') }}"></script>
 
-    <!-- Handlebars template for display name form -->
+    <!-- Handlebars templates will be in the HTML for now -->
+    <!-- display name form -->
     <script id="displayname_form" type="text/x-handlebars-template">
       <div class="container">
         <form onsubmit="store_displayname(); return false;">
@@ -55,6 +71,19 @@
             <input type="text" class="form-control" id="displayname" aria-describedby="Display name">
           </div>
           <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+      </div>
+    </script>
+
+    <!-- Channel Creation -->
+    <script id="create_channel_form" type="text/x-handlebars-template">
+      <div class="container">
+        <form onsubmit="create_channel(); return false;">
+          <div class="form-group">
+            <label for="channelname">Enter a channel name:</label>
+            <input type="text" class="form-control" id="channelname" aria-describedby="Channel name">
+          </div>
+          <button type="submit" class="btn btn-primary">Create</button>
         </form>
       </div>
     </script>

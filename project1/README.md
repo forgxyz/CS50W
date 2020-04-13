@@ -13,15 +13,6 @@
 1. The db's schema has to follow the explicit SQL. Python class-based db interaction doesn't come until proj2...
 
 
-### Project Overview
-soon
-
-### Tools Used
-soon
-
-
-
-
 ## To Do
 
 - [x] Registration: Users should be able to register for your website, providing (at minimum) a username and password.
