@@ -10,12 +10,12 @@ socketio = SocketIO(app)
 
 # CHANNELS will hold message data in the following structure:
 """[{name:
-    {id,
-    mesages: [{
-        id,
-        content,
-        timestamp,
-        posted_by}]
+        {id,
+        messages: [{
+            id,
+            content,
+            timestamp,
+            posted_by}]
     }
     }]"""
 
@@ -23,6 +23,8 @@ CHANNELS = []
 # CHANNEL_LIST will be a "table of contents" that maps name: id
 CHANNEL_LIST = {}
 
+CHANNELS.append({'General': {'id': 0, 'messages': {'content': 'hello there!', 'timestamp': '2020-04-14 16:45:00', 'posted_by': 'jack'}}})
+CHANNEL_LIST = {'General': 0}
 
 @app.route("/")
 def index():
@@ -42,12 +44,13 @@ def create_channel():
         id = len(CHANNELS)
         CHANNELS.append({name: {"id": id, "messages": []}})
         CHANNEL_LIST[name] = id
-        return "Success"
+        return "Success. Refresh to see the channel list."
 
 
 @app.route("/channel/<name>")
 def load_channel(name):
-    return f"Developing the channel {name}... please wait..."
+    messages = CHANNELS[CHANNEL_LIST[name]][name]['messages']
+    return jsonify(messages)
 
 
 @app.route("/channel_list")
@@ -66,7 +69,7 @@ def post_message(channel, message, user):
         # expand on error
         return False
     id = len(CHANNELS[channel]['messages'])
-    CHANNELS[channel]['messages'].append({id: {"timestamp": datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S'), "content": message, "posted_by": user}})
+    CHANNELS[channel]['messages'].append({"id": id, "timestamp": datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S'), "content": message, "posted_by": user})
     return True
 
 

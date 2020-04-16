@@ -5,11 +5,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Set links up to load new pages.
     document.querySelectorAll('.nav-link').forEach(link => {
-        link.onclick = () => {
-            const page = link.dataset.page;
-            if (page === undefined) {
-                return false;
-            } else {
+        const page = link.dataset.page;
+        if (page === undefined) {
+          return false;
+        } else {
+            link.onclick = () => {
             load_page(page);
             return false;
           }
@@ -40,6 +40,24 @@ function create_channel () {
     const data = new FormData();
     data.append('name', document.querySelector('#channelname').value);
     request.send(data);
+}
+
+
+// Retrieve the channel message data from the server and display on the page
+function load_channel (name) {
+    const request = new XMLHttpRequest();
+    request.open('GET', `/channel/${name}`);
+    request.onload = () => {
+        const contents = JSON.parse(request.responseText);
+        contents.forEach((item, i) => {
+            const template = Handlebars.compile(document.querySelector('#display_channel').innerHTML);
+            const content = template({'content': item});
+            document.querySelector('#body').innerHTML += content;
+            return True
+            // ERROR HERE
+        });
+      }
+    request.send();
 }
 
 

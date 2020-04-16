@@ -30,13 +30,16 @@
               <div class="dropdown-divider"></div>
               <div id="channel_list">
                 {% for channel in list %}
-                  <a class="nav-link dropdown-item" href="" data-page="channel/{{ channel }}">{{ channel }}</a>
+                  <a class="nav-link dropdown-item" href="" onclick="load_channel('{{channel}}'); return false;">{{ channel }}</a>
                 {% endfor %}
               </div>
             </div>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="" data-page="logout">Log out</a>
+          </li>
+          <li class="nav-item">
+            <a class ="nav-link" href="" onclick="alert('hey!'); return false;">Click me</a>
           </li>
         </ul>
         <form class="form-inline my-2 my-lg-0">
@@ -88,5 +91,15 @@
       </div>
     </script>
 
+    <!-- Display Channel -->
+    <script id="display_channel" type="text/x-handlebars-template">
+      {% raw -%}
+      <div class="alert alert-primary">
+        <p>{{content.message}}</p>
+        <hr>
+        <span align="right" size="small">posted by {{content.posted_by}} at {{content.timestamp}}</span>
+      </div>
+      {%- endraw %}
+    </script>
   </body>
 </html>
