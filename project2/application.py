@@ -31,8 +31,8 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/create", methods=['GET', 'POST'])
-def create_channel():
+@app.route("/channels", methods=['GET', 'POST'])
+def channels():
     # id will be equal to the list index of the channel
     if request.method == 'POST':
         name = request.form.get("name")
@@ -45,17 +45,15 @@ def create_channel():
         CHANNELS.append({name: {"id": id, "messages": []}})
         CHANNEL_LIST[name] = id
         return "Success. Refresh to see the channel list."
+    # GET request: return the channel list
+    return jsonify(list(CHANNEL_LIST.keys()))
+
 
 
 @app.route("/channel/<name>")
 def load_channel(name):
     messages = CHANNELS[CHANNEL_LIST[name]][name]['messages']
     return jsonify(messages)
-
-
-@app.route('get_channel_list')
-def channel_list():
-    return jsonify(list(CHANNEL_LIST.keys()))
 
 
 @app.route("/home")

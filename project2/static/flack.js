@@ -16,21 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     });
 
-    // connect to the socket
-    // var socket = io.connect(location.protocol + '//' document.domain + ':' + location.port);
-
-    // when connected, configure channel creation
-    // socket.on('connect', () => {
-    //     // load the channel list from the server
-    //     socket.emit('get_channel_list');
-    //     socket.on('channel_list', data => {
-    //         const contents = JSON.parse(data);
-    //         const template = Handlebars.compile(document.querySelector(`#template_channel_list`).innerHTML);
-    //         const content = template({'channels': contents});
-    //         document.querySelector('#channel_list').innerHTML = content;
-    //     });
-    // });
-
 });
 
 
@@ -45,7 +30,7 @@ window.onpopstate = e => {
 // create a new channel or return an error from the server
 function create_channel () {
     const request = new XMLHttpRequest();
-    request.open('POST', '/create');
+    request.open('POST', '/channels');
     request.onload = () => {
         const result = request.responseText;
         alert(result);
