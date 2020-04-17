@@ -38,7 +38,7 @@ def create_channel():
         name = request.form.get("name")
         if name == None:
             return "Error, name = None"
-        if name in CHANNEL_LIST.values():
+        if name in CHANNEL_LIST.keys():
             # a channel by this name already exists
             return "Error, name already in list"
         id = len(CHANNELS)
