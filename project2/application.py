@@ -28,7 +28,7 @@ CHANNEL_LIST = {'General': 0}
 
 @app.route("/")
 def index():
-    return render_template("index.html", list = list(CHANNEL_LIST.keys()))
+    return render_template("index.html")
 
 
 @app.route("/create", methods=['GET', 'POST'])
@@ -38,7 +38,7 @@ def create_channel():
         name = request.form.get("name")
         if name == None:
             return "Error, name = None"
-        if name in CHANNEL_LIST.values():
+        if name in CHANNEL_LIST.keys():
             # a channel by this name already exists
             return "Error, name already in list"
         id = len(CHANNELS)
@@ -53,7 +53,7 @@ def load_channel(name):
     return jsonify(messages)
 
 
-@app.route("/channel_list")
+@app.route('get_channel_list')
 def channel_list():
     return jsonify(list(CHANNEL_LIST.keys()))
 
@@ -74,5 +74,4 @@ def post_message(channel, message, user):
 
 
 if __name__ == "__main__":
-    # app.run(debug=True, host="0.0.0.0")
     socketio.run(app)

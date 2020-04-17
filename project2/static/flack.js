@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // channel_list();
     // Start by loading first page.
     load_page('home');
+    display_channels();
 
     // Set links up to load new pages.
     document.querySelectorAll('.nav-link').forEach(link => {
@@ -15,6 +15,22 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         };
     });
+
+    // connect to the socket
+    // var socket = io.connect(location.protocol + '//' document.domain + ':' + location.port);
+
+    // when connected, configure channel creation
+    // socket.on('connect', () => {
+    //     // load the channel list from the server
+    //     socket.emit('get_channel_list');
+    //     socket.on('channel_list', data => {
+    //         const contents = JSON.parse(data);
+    //         const template = Handlebars.compile(document.querySelector(`#template_channel_list`).innerHTML);
+    //         const content = template({'channels': contents});
+    //         document.querySelector('#channel_list').innerHTML = content;
+    //     });
+    // });
+
 });
 
 
@@ -31,7 +47,6 @@ function create_channel () {
     const request = new XMLHttpRequest();
     request.open('POST', '/create');
     request.onload = () => {
-        // if True: successful add, if False: channel name exists
         const result = request.responseText;
         alert(result);
     }
@@ -43,7 +58,22 @@ function create_channel () {
 }
 
 
+// display the channel List
+function display_channels () {
+    const request = new XMLHttpRequest();
+    request.open('GET', '/get_channel_list');
+    request.onload = () => {
+        const data = JSON.parse(request.responseText);
+        const template = Handlebars.compile(document.querySelector('#template_channel_list').innerHTML);
+        const content = template({'channels': data});
+        document.querySelector('#channel_list').innerHTML = content;
+    }
+    request.send();
+}
+
+
 // Retrieve the channel message data from the server and display on the page
+// DELETE THIS AND CHANGE TO SOCKET
 function load_channel (name) {
     const request = new XMLHttpRequest();
     request.open('GET', `/channel/${name}`);
@@ -54,7 +84,6 @@ function load_channel (name) {
             const content = template({'content': item});
             document.querySelector('#body').innerHTML += content;
             return True
-            // ERROR HERE
         });
       }
     request.send();
