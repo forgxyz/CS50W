@@ -29,7 +29,7 @@ window.onpopstate = e => {
 // create a new channel or return an error from the server
 function create_channel () {
     const request = new XMLHttpRequest();
-    request.open('POST', '/create');
+    request.open('POST', '/channels');
     request.onload = () => {
         // if True: successful add, if False: channel name exists
         const result = request.responseText;
