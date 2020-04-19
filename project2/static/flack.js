@@ -1,16 +1,24 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Start by loading first page.
-    load_page('home');
-    display_channels();
+    if (localStorage.displayname === undefined) {
+        // no user is stored
+        // compile locally instead of on flask server
+        const template = Handlebars.compile(document.querySelector('#displayname_form').innerHTML);
+        const content = template();
+        document.querySelector('#body').innerHTML = content;
+    } else {
+        loadPage('home');
+    }
+    displayChannels();
 
-    // Set links up to load new pages.
+    // Set links up to load new pages, if needed
     document.querySelectorAll('.nav-link').forEach(link => {
         const page = link.dataset.page;
         if (page === undefined) {
           return false;
         } else {
             link.onclick = () => {
-            load_page(page);
+            loadPage(page);
             return false;
           }
         };
@@ -28,12 +36,13 @@ window.onpopstate = e => {
 
 
 // create a new channel or return an error from the server
-function create_channel () {
+function createChannel () {
     const request = new XMLHttpRequest();
     request.open('POST', '/channels');
     request.onload = () => {
         const result = request.responseText;
         alert(result);
+        displayChannels();
     }
 
     // send form input
@@ -44,9 +53,9 @@ function create_channel () {
 
 
 // display the channel List
-function display_channels () {
+function displayChannels () {
     const request = new XMLHttpRequest();
-    request.open('GET', '/get_channel_list');
+    request.open('GET', '/channels');
     request.onload = () => {
         const data = JSON.parse(request.responseText);
         const template = Handlebars.compile(document.querySelector('#template_channel_list').innerHTML);
@@ -57,69 +66,40 @@ function display_channels () {
 }
 
 
-// Retrieve the channel message data from the server and display on the page
-// DELETE THIS AND CHANGE TO SOCKET
-function load_channel (name) {
-    const request = new XMLHttpRequest();
-    request.open('GET', `/channel/${name}`);
-    request.onload = () => {
-        const contents = JSON.parse(request.responseText);
-        contents.forEach((item, i) => {
-            const template = Handlebars.compile(document.querySelector('#display_channel').innerHTML);
-            const content = template({'content': item});
-            document.querySelector('#body').innerHTML += content;
-            return True
-        });
-      }
-    request.send();
+// load the messages from a channel
+function loadChannel (channel) {
+    localStorage.setItem('activeChannel', channel);
+    const template = Handlebars.compile(`<a class='nav-link'>${channel}</a>`);
+    document.querySelector('#active_channel').innerHTML = template();
+
+    var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+    socket.emit('load_messages', {data: channel});
+    socket.on('messages', (data) => {
+        // receive messages in the channel from the server
+        document.querySelector('#body').innerHTML = data;
+    });
 }
 
 
 // Renders contents of new page in main view.
-function load_page (name) {
-    if (localStorage.displayname === undefined) {
-        // no user is stored
-        // compile locally instead of on flask server
-        render_handlebars('displayname_form');
-    } else if (name === 'logout') {
-        localStorage.clear();
-        load_page('home');
-    } else if (name === 'create') {
-        render_handlebars('create_channel_form');
-    } else {
-        const request = new XMLHttpRequest();
-        request.open('GET', `/${name}`);
-        request.onload = () => {
-            const response = request.responseText;
-            document.querySelector('#body').innerHTML = response;
-            // Push state to URL.
-            document.title = name;
-            // history.pushState({'title': name, 'text': response}, name, name);
-          };
-        request.send();
-  }
-}
-
-
-function render_handlebars (id, params = false) {
-    const template = Handlebars.compile(document.querySelector(`#${id}`).innerHTML);
-    const content = template(params);
-    document.querySelector('#body').innerHTML = content;
+function loadPage (name) {
+    const request = new XMLHttpRequest();
+    request.open('GET', `/${name}`);
+    request.onload = () => {
+        const response = request.responseText;
+        document.querySelector('#body').innerHTML = response;
+        // Push state to URL.
+        // document.title = name;
+        // history.pushState({'title': name, 'text': response}, name, name);
+      };
+    request.send();
 }
 
 
 // store the display name to local storage
-function store_displayname () {
-    if (localStorage.displayname !== undefined) {
-        alert('The display name is already set!');
-        return false;
-    }
+function storeDisplayname () {
     let displayname = document.querySelector('#displayname').value;
     localStorage.setItem('displayname', displayname);
-    if (localStorage.displayname === undefined) {
-        alert('ERROR: Unable to set display name.');
-    } else {
-        alert(`Hello, ${displayname}! Thanks for setting your display name.`);
-    }
-    load_page('home');
+    alert(`Hello, ${displayname}! Thanks for setting your display name.`);
+    loadPage('home');
 }

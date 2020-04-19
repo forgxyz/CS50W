@@ -23,9 +23,12 @@ CHANNELS = []
 # CHANNEL_LIST will be a "table of contents" that maps name: id
 CHANNEL_LIST = {}
 
-CHANNELS.append({'General': {'id': 0, 'messages': {'content': 'hello there!', 'timestamp': '2020-04-14 16:45:00', 'posted_by': 'jack'}}})
+# initial channel for testing
+CHANNELS.append({'General': {'id': 0, 'messages': [{'content': 'hello there!', 'timestamp': '2020-04-14 16:45:00', 'posted_by': 'jack'}]}})
 CHANNEL_LIST = {'General': 0}
 
+
+# ROUTES
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -35,8 +38,9 @@ def index():
 def channels():
     # id will be equal to the list index of the channel
     if request.method == 'POST':
+        # create the channel
         name = request.form.get("name")
-        if name == None:
+        if name == None or name == '':
             return "Error, name = None"
         if name in CHANNEL_LIST.keys():
             # a channel by this name already exists
@@ -44,31 +48,25 @@ def channels():
         id = len(CHANNELS)
         CHANNELS.append({name: {"id": id, "messages": []}})
         CHANNEL_LIST[name] = id
-        return "Success. Refresh to see the channel list."
+        return "Success."
     # GET request: return the channel list
     return jsonify(list(CHANNEL_LIST.keys()))
 
 
-
-@app.route("/channel/<name>")
-def load_channel(name):
-    messages = CHANNELS[CHANNEL_LIST[name]][name]['messages']
-    return jsonify(messages)
-
-
 @app.route("/home")
 def home():
-    return "THIS IS THE HOMEPAGE"
+    return "Welcome. Please select a channel from above or create a new one."
 
 
-@app.route("/new_post")
-def post_message(channel, message, user):
-    if channel not in CHANNEL_LIST.values():
-        # expand on error
-        return False
-    id = len(CHANNELS[channel]['messages'])
-    CHANNELS[channel]['messages'].append({"id": id, "timestamp": datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S'), "content": message, "posted_by": user})
-    return True
+# SOCKETS
+@socketio.on('load_messages')
+def load_messages(channel):
+    emit('messages', CHANNELS[channel]['messages'][0]['content'])
+
+
+# @socketio.on('post_message')
+# def post_message(message):
+
 
 
 if __name__ == "__main__":
