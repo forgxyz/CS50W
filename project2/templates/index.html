@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <title>flackchat</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
   </head>
 
   <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg">
-      <a class="navbar-brand">Flack</a>
+    <nav class="navbar navbar-expand-sm">
+      <a class="navbar-brand">Flackchat</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -16,47 +17,38 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item">
-            <a class="nav-link" href="" data-page="home">Home</a>
+            <a class="nav-link"><span id="active"></span></a>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               Channel List
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <a class="nav-link dropdown-item" href="" data-page="create">Create a New Channel</a>
-              <div id="active_channel">
-                <!-- fill in active channel here, if any -->
-              </div>
-              <div class="dropdown-divider"></div>
               <div id="channel_list">
-                {% for channel in list %}
-                  <a class="nav-link dropdown-item" href="" onclick="load_channel('{{channel}}'); return false;">{{ channel }}</a>
-                {% endfor %}
+                <!-- channel list to be generated here -->
               </div>
             </div>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="" data-page="logout">Log out</a>
-          </li>
-          <li class="nav-item">
-            <a class ="nav-link" href="" onclick="alert('hey!'); return false;">Click me</a>
+            <a class="nav-link" href="" onclick="localStorage.clear();">Log out</a>
           </li>
         </ul>
-        <form class="form-inline my-2 my-lg-0">
-          <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        <form class="form-inline my-2 my-lg-0" onsubmit="createChannel(); return false;">
+          <input class="form-control mr-sm-2" type="text" id="channelname" placeholder="Create a channel..." aria-label="Create a channel.">
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Submit</button>
         </form>
       </div>
     </nav>
 
-    <div class="container" id="todo"><h1>TODO...</h1></div>
-
     <!-- Page body content -->
     <div class="container" id="body"></div>
+    <div class="container" id="body_lower"></div>
 
 
     <!-- Handlebars -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.11/handlebars.min.js"></script>
+    <!-- SocketIO -->
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
     <!-- Bootstrap -->
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
@@ -68,7 +60,7 @@
     <!-- display name form -->
     <script id="displayname_form" type="text/x-handlebars-template">
       <div class="container">
-        <form onsubmit="store_displayname(); return false;">
+        <form onsubmit="storeDisplayname(); return false;">
           <div class="form-group">
             <label for="displayname">What should we call you?</label>
             <input type="text" class="form-control" id="displayname" aria-describedby="Display name">
@@ -81,7 +73,7 @@
     <!-- Channel Creation -->
     <script id="create_channel_form" type="text/x-handlebars-template">
       <div class="container">
-        <form onsubmit="create_channel(); return false;">
+        <form onsubmit="createChannel(); return false;">
           <div class="form-group">
             <label for="channelname">Enter a channel name:</label>
             <input type="text" class="form-control" id="channelname" aria-describedby="Channel name">
@@ -91,15 +83,37 @@
       </div>
     </script>
 
-    <!-- Display Channel -->
-    <script id="display_channel" type="text/x-handlebars-template">
+    <!-- Channel list -->
+    <script id="template_channel_list" type="text/x-handlebars-template">
       {% raw -%}
-      <div class="alert alert-primary">
-        <p>{{content.message}}</p>
-        <hr>
-        <span align="right" size="small">posted by {{content.posted_by}} at {{content.timestamp}}</span>
-      </div>
+        {{#each channels}}
+          <a class="nav-link dropdown-item" onclick="loadChannel('{{this}}'); return false;">{{this}}</a>
+        {{/each}}
       {%- endraw %}
+    </script>
+
+    <!-- message item -->
+    <script id="template_message" type="text/x-handlebars-template">
+      <div class="container">
+        {% raw -%}
+            <div class="alert alert-primary">
+              <p>{{message.content}}<p>
+              <p style="text-align:right;size:small">posted by <em>{{message.posted_by}}</em> on <em>{{message.timestamp}}</em></p>
+            </div>
+        {%- endraw %}
+      </div>
+    </script>
+
+    <!-- post new message -->
+    <script id="template_new_message" type="text/x-handlebars-template">
+        <div class="container">
+          <form onsubmit="postMessage(); return false;">
+            <div class="form-group">
+              <input type="text" class="form-control" aria-describedby="Post new message" id="new_message">
+            </div>
+          <button type="submit" class="btn btn-primary">Post</button>
+          </form>
+        </div>
     </script>
   </body>
 </html>
