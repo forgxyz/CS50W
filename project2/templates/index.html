@@ -8,7 +8,7 @@
 
   <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg">
+    <nav class="navbar navbar-expand-sm">
       <a class="navbar-brand">Flackchat</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -17,17 +17,13 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item">
-            <a class="nav-link" href="" data-page="home">Home</a>
+            <a class="nav-link"><span id="active"></span></a>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               Channel List
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <div id="active_channel">
-                <!-- fill in active channel here, if any -->
-              </div>
-              <div class="dropdown-divider"></div>
               <div id="channel_list">
                 <!-- channel list to be generated here -->
               </div>
@@ -91,9 +87,33 @@
     <script id="template_channel_list" type="text/x-handlebars-template">
       {% raw -%}
         {{#each channels}}
-          <a class="nav-link dropdown-item" href="" onclick="loadChannel('{{this}}'); return false;">{{this}}</a>
+          <a class="nav-link dropdown-item" onclick="loadChannel('{{this}}'); return false;">{{this}}</a>
         {{/each}}
       {%- endraw %}
+    </script>
+
+    <!-- message item -->
+    <script id="template_message" type="text/x-handlebars-template">
+      <div class="container">
+        {% raw -%}
+            <div class="alert alert-primary">
+              <p>{{message.content}}<p>
+              <p style="text-align:right;size:small">posted by <em>{{message.posted_by}}</em> on <em>{{message.timestamp}}</em></p>
+            </div>
+        {%- endraw %}
+      </div>
+    </script>
+
+    <!-- post new message -->
+    <script id="template_new_message" type="text/x-handlebars-template">
+        <div class="container">
+          <form onsubmit="postMessage(); return false;">
+            <div class="form-group">
+              <input type="text" class="form-control" aria-describedby="Post new message" id="new_message">
+            </div>
+          <button type="submit" class="btn btn-primary">Post</button>
+          </form>
+        </div>
     </script>
   </body>
 </html>

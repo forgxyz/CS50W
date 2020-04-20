@@ -9,23 +9,18 @@ app.config["SECRET_KEY"] = os.getenv("SECRET_KEY") # ???
 socketio = SocketIO(app)
 
 # CHANNELS will hold message data in the following structure:
-"""[{name:
-        {id,
-        messages: [{
+"""{name:
+        {messages: [{
             id,
             content,
             timestamp,
-            posted_by}]
-    }
-    }]"""
+            posted_by}]}
+    }"""
 
-CHANNELS = []
-# CHANNEL_LIST will be a "table of contents" that maps name: id
-CHANNEL_LIST = {}
+CHANNELS = {}
 
 # initial channel for testing
-CHANNELS.append({'General': {'id': 0, 'messages': [{'content': 'hello there!', 'timestamp': '2020-04-14 16:45:00', 'posted_by': 'jack'}]}})
-CHANNEL_LIST = {'General': 0}
+CHANNELS['General'] = {'messages': [{'content': 'hello there!', 'timestamp': '2020-04-14 16:45:00', 'posted_by': 'jack'}, {'content': 'need some coffee', 'timestamp': '2020-04-20 12:24:00', 'posted_by': 'jack'}]}
 
 
 # ROUTES
@@ -41,17 +36,19 @@ def channels():
         # create the channel
         name = request.form.get("name")
         if name == None or name == '':
-            return "Error, name = None"
-        if name in CHANNEL_LIST.keys():
+            return "Error, channel must have a name"
+        if name in CHANNELS.keys():
             # a channel by this name already exists
-            return "Error, name already in list"
-        id = len(CHANNELS)
-        CHANNELS.append({name: {"id": id, "messages": []}})
-        CHANNEL_LIST[name] = id
+            return "Error, channel already exists"
+        CHANNELS[name] = {'messages': []}
         return "Success."
     # GET request: return the channel list
-    return jsonify(list(CHANNEL_LIST.keys()))
+    return jsonify(list(CHANNELS.keys()))
 
+
+@app.route('/channels/<channel>', methods=['GET', 'POST'])
+def load_channel(channel):
+    return jsonify(CHANNELS[channel]['messages'])
 
 @app.route("/home")
 def home():
@@ -59,14 +56,15 @@ def home():
 
 
 # SOCKETS
-@socketio.on('load_messages')
-def load_messages(channel):
-    emit('messages', CHANNELS[channel]['messages'][0]['content'])
+@socketio.on('post message')
+def post_message(data):
+    channel = data['data']['channel']
+    message = {'content': data['data']['content'], 'timestamp': str(datetime.now()), 'posted_by': data['data']['user']}
 
+    # add message to server storage
+    CHANNELS[channel]['messages'].append(message)
 
-# @socketio.on('post_message')
-# def post_message(message):
-
+    emit('new message', {'message': message, 'channel': channel}, broadcast=True)
 
 
 if __name__ == "__main__":
