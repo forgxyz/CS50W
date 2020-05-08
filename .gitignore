@@ -9,4 +9,4 @@ project1/database_url.json
 project1/db.py
 project1/goodreads.json
 lecture2
-ignore_me
+*ignore/
