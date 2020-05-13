@@ -1,32 +1,47 @@
 {% extends "orders/base.html" %}
+
 {% block body %}
-  <table>
-    <thead>
-      <tr>
-        <td>Item</td>
-        <td>Price - Small</td>
-        <td>Price - Lg</td>
-        <td>Category</td>
-        <td>Topping - optional</td>
-      </tr>
-    </thead>
-    <tbody>
-      {% for item in items %}
+  <p>{{message}}</p>
+  <form action="{% url 'addToCart' %}" method="post" name="menu">
+    {% csrf_token %}
+    <table>
+      <thead>
         <tr>
-          <td>{{item.item}}</td>
-          <td>{{item.priceSm}}</td>
-          <td>{{item.priceLg}}</td>
-          <td>{{item.category}}</td>
-          {% if item.topping %}
-            <td>{{item.topping}}</td>
-          {% endif %}
+          <td>Item</td>
+          <td>Small</td>
+          <td>Large</td>
+          <td>Toppings</td>
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  <em>Note: if small price is $0, the item is available in just one size</em>
+      </thead>
+      <tbody>
+        {% for item in items %}
+          <tr>
+            <td><input type="checkbox" name="{{item.item}}" value="{{item.id}}" />{{item.item}}</td>
+            {% if item.priceSm == 0.00 %}
+              <td>N/A</td>
+            {% else %}
+              <td>{{item.priceSm}} <input type="radio" name="{{item.item}}" value="Small" /></td>
+            {% endif %}
+            <td>{{item.priceLg}} <input type="radio" name="{{item.item}}" value="Large" /></td>
+            {% if item.topping > 0 %}
+              <td><select name="{{item.item}}" multiple size="{{item.topping}}">
+                {% for topping in toppings %}
+                  <option value="{{topping.id}}" name="{{topping.topping}}">{{topping.topping}}</option>
+                {% endfor %}
+              </select></td>
+            {% endif %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <button type="submit">Add selections to cart</button>
+  </form>
+  <hr>
+  <form action="{% url 'clearCart' %}">
+    <button type="submit">Clear contents of cart</button>
+  </form>
   <hr>
   <form action="{% url 'logout' %}">
-    <button type="submit">Logout</button>
+    <button type="submit">Logout {{user}}</button>
   </form>
 {% endblock %}

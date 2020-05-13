@@ -2,7 +2,16 @@
 
 {% block body %}
 
-<h1>Success!</h1>
-<p>User {{ username }}</p>
+<h1>Your Cart</h1>
+{% if selections %}
+  <p>Successfully added the following items to cart:</p>
+  <ul>
+    {% for item in selections %}
+      <li>{{size}} {{item}}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+<h3>Your current cart:</h3>
 
 {% endblock %}

@@ -8,7 +8,7 @@ class Item(models.Model):
     priceSm = models.DecimalField(max_digits=5, decimal_places=2)
     priceLg = models.DecimalField(max_digits=5, decimal_places=2)
     category = models.CharField(max_length=20)
-    topping = models.BooleanField(default=False)
+    topping = models.IntegerField()
 
     def __str__(self):
         return self.item
@@ -27,24 +27,34 @@ class Order(models.Model):
     timestamp = models.DateField(auto_now_add=True)
 
     def __str__(self):
-        return f"{name} - {timestamp}"
+        return f"{self.name} - {self.timestamp}"
 
 
 class OrderItem(models.Model):
     orderID = models.ForeignKey(Order, on_delete=models.CASCADE)
     itemID = models.ForeignKey(Item, on_delete=models.CASCADE)
     toppingID = models.ForeignKey(Topping, on_delete=models.CASCADE, null=True)
+    size = models.CharField(max_length=5)
+    price = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
 
     def __str__(self):
-        return f"{orderID} {itemID} {toppingID}"
+        return f"{self.orderID} {self.itemID} {self.toppingID}"
 
 
 class Cart(models.Model):
     userID = models.ForeignKey(User, on_delete=models.CASCADE, unique=True)
     total = models.DecimalField(max_digits=8, decimal_places=2)
 
+    def __str__(self):
+        return f"Cart for {self.userID}"
+
 
 class CartItem(models.Model):
     cartID = models.ForeignKey(Cart, on_delete=models.CASCADE)
     itemID = models.ForeignKey(Item, on_delete=models.CASCADE)
     toppingID = models.ForeignKey(Topping, on_delete=models.CASCADE, null=True)
+    size = models.CharField(max_length=5)
+    price = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+
+    def __str__(self):
+        return f"{self.itemID} in {self.cartID}"
