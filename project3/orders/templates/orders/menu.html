@@ -7,7 +7,7 @@
     {{ form }}
     <input type="submit" value="Add item to cart">
   </form>
-
+  <div id="testarea"></div>
   {% if additions %}
   <hr>
     <p>Successfully added the following items to cart:</p>
@@ -26,7 +26,10 @@
     {% endfor %}
     <p><em>Total</em> ${{ total }}</p>
   </ul>
-
+  <form action="{% url 'order' %}"}
+   {% csrf_token %}
+   <button type="submit">Place order!</button>
+  </form>
   <form action="{% url 'clearCart' %}">
     {% csrf_token %}
     <button type="submit">Clear contents of cart</button>

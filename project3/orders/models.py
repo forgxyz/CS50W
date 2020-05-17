@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from django.core.validators import MinValueValidator
 
 SIZES = [
     ('Small', 'Small'),
@@ -36,17 +36,34 @@ class Cart(models.Model):
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
-    topping = models.BooleanField(default=False)
     size = models.CharField(max_length=7, choices=SIZES)
-    quantity = models.IntegerField(default=0)
+    quantity = models.IntegerField(default=1, validators=[MinValueValidator(1)])
+    topping1 = models.ForeignKey(Topping, on_delete=models.CASCADE, null=True, related_name='topping1')
+    topping2 = models.ForeignKey(Topping, on_delete=models.CASCADE, null=True, related_name='topping2')
+    topping3 = models.ForeignKey(Topping, on_delete=models.CASCADE, null=True, related_name='topping3')
+
 
     def __str__(self):
         return f"{self.quantity} {self.size} {self.item}"
 
 
-class CartItemTopping(models.Model):
-    cartitem = models.ForeignKey(CartItem, on_delete=models.CASCADE)
-    topping = models.ForeignKey(Topping, on_delete=models.CASCADE)
+class Order(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    total = models.DecimalField(max_digits=8, decimal_places=2, default=0)
 
     def __str__(self):
-        return f"{self.topping} on {self.cartitem}"
+        return f"{self.user}'s order"
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    size = models.CharField(max_length=7, choices=SIZES)
+    quantity = models.IntegerField(default=1, validators=[MinValueValidator(1)])
+    topping1 = models.ForeignKey(Topping, on_delete=models.CASCADE, null=True, related_name='otopping1')
+    topping2 = models.ForeignKey(Topping, on_delete=models.CASCADE, null=True, related_name='otopping2')
+    topping3 = models.ForeignKey(Topping, on_delete=models.CASCADE, null=True, related_name='otopping3')
+
+
+    def __str__(self):
+        return f"{self.quantity} {self.size} {self.item}"
