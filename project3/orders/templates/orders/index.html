@@ -1,0 +1,26 @@
+{% extends "orders/base.html" %}
+
+{% block body %}
+  <h1>Welcome to Pinnochio's Pizza</h1>
+  <p>Log in or register</p>
+  <form action="{% url 'login' %}" method="post">
+    {% csrf_token %}
+    <input type="text" name="username" placeholder="Username">
+    <input type="password" name="password" placeholder="Password">
+    <button type="submit">Log in</button>
+  </form>
+<hr>
+<p>Not registered?</p>
+
+<form action="{% url 'register' %}" method="post">
+  {% csrf_token %}
+  <input type="text" name="username" placeholder="Username">
+  <input type="password" name="password" placeholder="Password">
+  <button type="submit">Register</button>
+</form>
+
+<hr>
+<form action="{% url 'logout' %}">
+  <button type="submit">Logout</button>
+</form>
+{% endblock %}
